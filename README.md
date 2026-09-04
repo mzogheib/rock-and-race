@@ -1,4 +1,4 @@
-# Tap Race
+# Rock & Race
 
 A two-player, fully client-side tap-to-race game. No backend at all — two
 phones connect directly over WebRTC, exchanging the connection handshake as
