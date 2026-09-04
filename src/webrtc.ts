@@ -14,16 +14,30 @@ export function createPeerConnection(): RTCPeerConnection {
   return new RTCPeerConnection({ iceServers: ICE_SERVERS });
 }
 
-function waitForIceGatheringComplete(pc: RTCPeerConnection): Promise<void> {
+function waitForIceGatheringComplete(
+  pc: RTCPeerConnection,
+  timeoutMs = 2500,
+): Promise<void> {
   if (pc.iceGatheringState === "complete") return Promise.resolve();
   return new Promise((resolve) => {
+    let done = false;
+    function finish() {
+      if (done) return;
+      done = true;
+      pc.removeEventListener("icegatheringstatechange", check);
+      clearTimeout(timer);
+      resolve();
+    }
     function check() {
-      if (pc.iceGatheringState === "complete") {
-        pc.removeEventListener("icegatheringstatechange", check);
-        resolve();
-      }
+      if (pc.iceGatheringState === "complete") finish();
     }
     pc.addEventListener("icegatheringstatechange", check);
+    // Don't block forever waiting on a STUN server that may be unreachable
+    // (common on mobile hotspots, which throttle/block outbound UDP). Once
+    // the timeout hits, we proceed with whatever candidates have gathered
+    // so far — host candidates alone are enough when both devices share a
+    // local network, which is the expected case here.
+    const timer = setTimeout(finish, timeoutMs);
   });
 }
 
