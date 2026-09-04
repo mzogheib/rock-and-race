@@ -1,0 +1,257 @@
+@font-face {
+  font-family: "Racer Display";
+  src: local("Oswald");
+}
+
+:root {
+  --bg: #14171c;
+  --surface: #1d2128;
+  --surface-raised: #262b34;
+  --text: #edeff2;
+  --text-muted: #8b93a1;
+  --p1: #ff5d5d;
+  --p2: #34c6c6;
+  --line: #2c313a;
+  --radius: 14px;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  height: 100%;
+  margin: 0;
+}
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family:
+    system-ui,
+    -apple-system,
+    "Segoe UI",
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+#app {
+  min-height: 100dvh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+}
+
+.screen {
+  display: none;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+  width: 100%;
+  max-width: 420px;
+  text-align: center;
+}
+
+.screen.active {
+  display: flex;
+}
+
+.wordmark {
+  font-family: "Racer Display", system-ui, sans-serif;
+  font-weight: 700;
+  font-size: 44px;
+  letter-spacing: -0.01em;
+  margin: 0;
+}
+
+.tagline {
+  color: var(--text-muted);
+  margin: -12px 0 0;
+  font-size: 15px;
+  max-width: 32ch;
+}
+
+.step-title {
+  font-size: 19px;
+  font-weight: 600;
+  margin: 0;
+}
+
+.actions {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: 100%;
+  margin-top: 8px;
+}
+
+.btn {
+  border: none;
+  border-radius: var(--radius);
+  padding: 15px 20px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition:
+    transform 80ms ease,
+    background 120ms ease;
+  font-family: inherit;
+}
+
+.btn:active {
+  transform: scale(0.97);
+}
+
+.btn-primary {
+  background: var(--p2);
+  color: #0b1113;
+}
+
+.btn-secondary {
+  background: var(--surface-raised);
+  color: var(--text);
+  border: 1px solid var(--line);
+}
+
+.btn-ghost {
+  background: transparent;
+  color: var(--text-muted);
+  font-weight: 500;
+  padding: 10px;
+}
+
+.qr-frame {
+  background: #fff;
+  padding: 16px;
+  border-radius: var(--radius);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.qr-frame canvas {
+  display: block;
+  width: 100%;
+  max-width: 260px;
+  height: auto;
+}
+
+.video-frame {
+  width: 100%;
+  max-width: 320px;
+  aspect-ratio: 1;
+  border-radius: var(--radius);
+  overflow: hidden;
+  background: #000;
+  border: 2px solid var(--line);
+}
+
+.video-frame video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.hint {
+  color: var(--text-muted);
+  font-size: 14px;
+  margin: 0;
+  min-height: 18px;
+}
+
+/* Race screen */
+
+#screen-race {
+  gap: 32px;
+}
+
+.track {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.lane {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.lane-label {
+  font-size: 12px;
+  color: var(--text-muted);
+  font-weight: 600;
+}
+
+.lane-track {
+  position: relative;
+  height: 46px;
+  background: var(--surface);
+  border-radius: 10px;
+  border: 1px solid var(--line);
+  overflow: hidden;
+}
+
+.lane-track::after {
+  content: "";
+  position: absolute;
+  right: 10px;
+  top: 0;
+  bottom: 0;
+  width: 3px;
+  background: var(--text-muted);
+  opacity: 0.4;
+}
+
+.avatar {
+  position: absolute;
+  top: 50%;
+  left: 4px;
+  transform: translate(0, -50%) rotate(90deg);
+  font-size: 20px;
+  transition: left 90ms linear;
+}
+
+.lane-me .avatar {
+  color: var(--p1);
+}
+.lane-opp .avatar {
+  color: var(--p2);
+}
+
+.tap-button {
+  width: 100%;
+  aspect-ratio: 1.4;
+  max-height: 220px;
+  border: none;
+  border-radius: 24px;
+  background: var(--p1);
+  color: #1a0505;
+  font-size: 28px;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+  cursor: pointer;
+  user-select: none;
+  -webkit-user-select: none;
+  touch-action: manipulation;
+}
+
+.tap-button:active {
+  transform: scale(0.96);
+}
+
+.result-headline {
+  font-family: "Racer Display", system-ui, sans-serif;
+  font-size: 34px;
+  margin: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .avatar,
+  .btn {
+    transition: none;
+  }
+}

@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, viewport-fit=cover"
+    />
+    <title>Tap Race</title>
+    <link rel="stylesheet" href="/src/style.css" />
+  </head>
+  <body>
+    <main id="app">
+      <section id="screen-start" class="screen active">
+        <h1 class="wordmark">Tap Race</h1>
+        <p class="tagline">
+          First to the line wins. No servers, just two phones.
+        </p>
+        <div class="actions">
+          <button id="btn-host" class="btn btn-primary">Start a race</button>
+          <button id="btn-join" class="btn btn-secondary">
+            I have a code to scan
+          </button>
+        </div>
+      </section>
+
+      <section id="screen-host-qr" class="screen">
+        <h2 class="step-title">Let your opponent scan this</h2>
+        <div id="host-qr-canvas" class="qr-frame"></div>
+        <p class="hint" id="host-qr-hint">Preparing connection…</p>
+        <button id="btn-host-scan-answer" class="btn btn-primary" hidden>
+          Scan their reply code
+        </button>
+        <button class="btn btn-ghost" data-back>Cancel</button>
+      </section>
+
+      <section id="screen-scan" class="screen">
+        <h2 class="step-title" id="scan-title">
+          Point your camera at the code
+        </h2>
+        <div class="video-frame">
+          <video id="scan-video" playsinline muted></video>
+        </div>
+        <p class="hint" id="scan-hint">Looking for a code…</p>
+        <button class="btn btn-ghost" data-back>Cancel</button>
+      </section>
+
+      <section id="screen-join-qr" class="screen">
+        <h2 class="step-title">Show this back to them</h2>
+        <div id="join-qr-canvas" class="qr-frame"></div>
+        <p class="hint">Waiting for them to scan and connect…</p>
+        <button class="btn btn-ghost" data-back>Cancel</button>
+      </section>
+
+      <section id="screen-race" class="screen">
+        <div class="track">
+          <div class="lane lane-me">
+            <div class="lane-label">You</div>
+            <div class="lane-track">
+              <div class="avatar" id="avatar-me">▲</div>
+            </div>
+          </div>
+          <div class="lane lane-opp">
+            <div class="lane-label">Them</div>
+            <div class="lane-track">
+              <div class="avatar" id="avatar-opp">▲</div>
+            </div>
+          </div>
+        </div>
+        <button id="btn-tap" class="tap-button">TAP</button>
+      </section>
+
+      <section id="screen-result" class="screen">
+        <h2 class="result-headline" id="result-headline">You win</h2>
+        <button id="btn-rematch" class="btn btn-primary">Race again</button>
+        <button class="btn btn-ghost" data-back>Back to start</button>
+      </section>
+    </main>
+
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>
