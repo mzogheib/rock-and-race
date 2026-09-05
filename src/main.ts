@@ -180,7 +180,6 @@ function setStepState(
 function resetHostManualSteps(): void {
   setStepState("host-step-1", "current");
   setStepState("host-step-2", "pending");
-  setStepState("host-step-3", "pending");
   $("host-manual-hint").textContent = "";
   ($("host-answer-input") as HTMLInputElement).value = "";
 }
