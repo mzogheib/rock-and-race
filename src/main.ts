@@ -406,6 +406,7 @@ function startGame(): void {
     onProgress: (me, opp) => updateTrack(me, opp),
     onWin: (winner) => showResult(winner),
     onRematchRequested: () => startGame(),
+    onOpponentLeft: () => goHome(),
   });
   showScreen("screen-race");
   updateTrack(0, 0);
@@ -556,6 +557,10 @@ document
   } else {
     goHome();
   }
+};
+($("btn-leave-result") as HTMLButtonElement).onclick = () => {
+  game?.notifyLeave();
+  goHome();
 };
 document.querySelectorAll<HTMLElement>("[data-back]").forEach((btn) => {
   btn.onclick = () => goHome();

@@ -3,12 +3,14 @@ const BROADCAST_INTERVAL_MS = 80;
 
 type ProgressMsg = { type: "progress"; value: number };
 type RematchMsg = { type: "rematch" };
-type Msg = ProgressMsg | RematchMsg;
+type LeaveMsg = { type: "leave" };
+type Msg = ProgressMsg | RematchMsg | LeaveMsg;
 
 export type GameCallbacks = {
   onProgress: (me: number, opp: number) => void;
   onWin: (winner: "me" | "opp") => void;
   onRematchRequested: () => void;
+  onOpponentLeft: () => void;
 };
 
 export class Game {
@@ -69,6 +71,13 @@ export class Game {
     this.dc.send(JSON.stringify(msg));
   }
 
+  /** Tell the opponent we're leaving, e.g. heading back to the start screen. */
+  notifyLeave(): void {
+    if (this.dc.readyState !== "open") return;
+    const msg: LeaveMsg = { type: "leave" };
+    this.dc.send(JSON.stringify(msg));
+  }
+
   private handleMessage(raw: string): void {
     let msg: Msg;
     try {
@@ -78,6 +87,10 @@ export class Game {
     }
     if (msg.type === "rematch") {
       this.callbacks.onRematchRequested();
+      return;
+    }
+    if (msg.type === "leave") {
+      this.callbacks.onOpponentLeft();
       return;
     }
     if (msg.type !== "progress") return;
