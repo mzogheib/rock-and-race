@@ -59,7 +59,19 @@ body {
   display: flex;
 }
 
+.hero-wall {
+  width: 100vw;
+  margin-left: calc(50% - 50vw);
+  height: min(38vh, 260px);
+  background-image: url("../assets/wall.png");
+  background-size: contain;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+
 .wordmark {
+  position: relative;
+  z-index: 1;
   font-family: "Racer Display", system-ui, sans-serif;
   font-weight: 700;
   font-size: 44px;
