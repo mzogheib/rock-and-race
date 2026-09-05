@@ -1,4 +1,4 @@
-const TAPS_TO_WIN = 40; // tune to taste
+export const TAPS_TO_WIN = 40; // tune to taste
 const BROADCAST_INTERVAL_MS = 80;
 
 type ProgressMsg = { type: "progress"; value: number };

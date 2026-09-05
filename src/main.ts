@@ -12,7 +12,7 @@ import {
   decodeCode,
   type ScanHandle,
 } from "./qr";
-import { Game } from "./game";
+import { Game, TAPS_TO_WIN } from "./game";
 
 function $(id: string): HTMLElement {
   const el = document.getElementById(id);
@@ -32,9 +32,15 @@ let dc: RTCDataChannel | null = null;
 let game: Game | null = null;
 let activeScan: ScanHandle | null = null;
 let joinAnswerBlob: string | null = null;
-// The host is always shown on the left, the joiner always on the right —
-// see the `.track.joiner` rule in style.css.
+// The host always starts on the left, the joiner always on the right —
+// see the LANE_START_LEFT/RIGHT usage in updateTrack().
 let isHost = true;
+
+// ?dev=true jumps straight to the race screen with no peer connection, so
+// the "You" climber can be driven locally to iterate on the race UI quickly.
+const isDev = new URLSearchParams(location.search).get("dev") === "true";
+let devMeProgress = 0;
+let devOppProgress = 0;
 
 function resetConnection(): void {
   activeScan?.stop();
@@ -279,8 +285,18 @@ function showResult(winner: "me" | "opp"): void {
   startHostFlow().catch(console.error);
 ($("btn-join") as HTMLButtonElement).onclick = () =>
   startJoinFlow().catch(console.error);
-($("btn-tap-left") as HTMLButtonElement).onclick = () => game?.tap();
-($("btn-tap-right") as HTMLButtonElement).onclick = () => game?.tap();
+function handleTap(): void {
+  if (game) {
+    game.tap();
+    return;
+  }
+  if (isDev) {
+    devMeProgress = Math.min(1, devMeProgress + 1 / TAPS_TO_WIN);
+    updateTrack(devMeProgress, devOppProgress);
+  }
+}
+($("btn-tap-left") as HTMLButtonElement).onclick = () => handleTap();
+($("btn-tap-right") as HTMLButtonElement).onclick = () => handleTap();
 const joinCopyBtn = $("btn-join-copy-code") as HTMLButtonElement;
 joinCopyBtn.onclick = () => {
   if (!joinAnswerBlob) return;
@@ -299,9 +315,7 @@ document.querySelectorAll<HTMLElement>("[data-back]").forEach((btn) => {
   btn.onclick = () => goHome();
 });
 
-// --- Dev helper: ?dev=true jumps straight to the race screen, with no peer
-// connection required, so the race UI can be iterated on quickly. ---
-if (new URLSearchParams(location.search).get("dev") === "true") {
+if (isDev) {
   showScreen("screen-race");
-  updateTrack(0.4, 0.65);
+  updateTrack(devMeProgress, devOppProgress);
 }
