@@ -431,7 +431,7 @@ function showResult(winner: "me" | "opp"): void {
 ($("btn-join") as HTMLButtonElement).onclick = () =>
   startJoinFlow().catch(console.error);
 // Each tap button twists "You" toward its own side, then springs back to
-// center — left twists clockwise, right twists counter-clockwise.
+// center — left twists counter-clockwise, right twists clockwise.
 function triggerTwist(direction: "cw" | "ccw"): void {
   const dot = $("avatar-me-dot");
   const twistClass = direction === "cw" ? "twist-cw" : "twist-ccw";
@@ -451,8 +451,8 @@ function handleTap(direction: "cw" | "ccw"): void {
     updateTrack(devMeProgress, devOppProgress);
   }
 }
-($("btn-tap-left") as HTMLButtonElement).onclick = () => handleTap("cw");
-($("btn-tap-right") as HTMLButtonElement).onclick = () => handleTap("ccw");
+($("btn-tap-left") as HTMLButtonElement).onclick = () => handleTap("ccw");
+($("btn-tap-right") as HTMLButtonElement).onclick = () => handleTap("cw");
 const joinOfferForm = $("join-offer-form") as HTMLFormElement;
 const joinOfferInput = $("join-offer-input") as HTMLInputElement;
 const joinManualHint = $("join-manual-hint");
