@@ -26,12 +26,23 @@
       </section>
 
       <section id="screen-host-qr" class="screen">
-        <h2 class="step-title">Let your opponent scan this</h2>
-        <div id="host-qr-canvas" class="qr-frame"></div>
-        <p class="hint" id="host-qr-hint">Preparing connection…</p>
-        <button id="btn-host-scan-answer" class="btn btn-primary" hidden>
-          Scan their reply code
-        </button>
+        <ol class="steps">
+          <li class="step" id="host-qr-step-1">
+            <p class="step-text">
+              <span class="step-number">1</span>Show this to your opponent
+            </p>
+            <div id="host-qr-canvas" class="qr-frame"></div>
+            <p class="hint" id="host-qr-hint">Preparing connection…</p>
+          </li>
+          <li class="step" id="host-qr-step-2">
+            <p class="step-text">
+              <span class="step-number">2</span>Then scan their reply code
+            </p>
+            <button id="btn-host-scan-answer" class="btn btn-primary" hidden>
+              Scan
+            </button>
+          </li>
+        </ol>
         <a href="#" class="link" id="host-trouble-link" hidden
           >Having trouble scanning?</a
         >
@@ -77,13 +88,17 @@
       </section>
 
       <section id="screen-scan" class="screen">
-        <h2 class="step-title" id="scan-title">
-          Point your camera at the code
-        </h2>
-        <div class="video-frame">
-          <video id="scan-video" playsinline muted></video>
-        </div>
-        <p class="hint" id="scan-hint">Looking for a code…</p>
+        <ol class="steps">
+          <li class="step is-current" id="scan-step-1">
+            <p class="step-text">
+              <span class="step-number">1</span>Scan your opponent's code
+            </p>
+            <div class="video-frame">
+              <video id="scan-video" playsinline muted></video>
+            </div>
+            <p class="hint" id="scan-hint">Looking for a code…</p>
+          </li>
+        </ol>
         <a href="#" class="link" id="scan-trouble-link" hidden
           >Having trouble scanning?</a
         >
@@ -125,11 +140,17 @@
       </section>
 
       <section id="screen-join-qr" class="screen">
-        <h2 class="step-title">Show this back to them</h2>
-        <div id="join-qr-canvas" class="qr-frame"></div>
-        <p class="hint" id="join-qr-hint">
-          Waiting for them to scan and connect…
-        </p>
+        <ol class="steps">
+          <li class="step is-current" id="join-qr-step-2">
+            <p class="step-text">
+              <span class="step-number">2</span>Show this back to them
+            </p>
+            <div id="join-qr-canvas" class="qr-frame"></div>
+            <p class="hint" id="join-qr-hint">
+              Waiting for them to scan and connect…
+            </p>
+          </li>
+        </ol>
         <button class="btn btn-ghost" data-back>Cancel</button>
       </section>
 

@@ -191,6 +191,8 @@ async function startHostFlow(): Promise<void> {
   scanAnswerBtn.hidden = true;
   troubleLink.hidden = true;
   resetHostManualSteps();
+  setStepState("host-qr-step-1", "current");
+  setStepState("host-qr-step-2", "pending");
   hint.textContent = "Preparing connection…";
 
   pc = createPeerConnection();
@@ -199,9 +201,11 @@ async function startHostFlow(): Promise<void> {
   dc.onopen = () => onDataChannelOpen();
 
   await renderQr($("host-qr-canvas"), blob);
-  hint.textContent = "Then tap below to scan their reply.";
+  hint.textContent = "";
   scanAnswerBtn.hidden = false;
   scanAnswerBtn.onclick = () => scanForAnswer();
+  setStepState("host-qr-step-1", "done");
+  setStepState("host-qr-step-2", "current");
   troubleLink.hidden = false;
   troubleLink.onclick = (ev) => {
     ev.preventDefault();
@@ -247,7 +251,6 @@ async function startHostFlow(): Promise<void> {
 
 async function scanForAnswer(): Promise<void> {
   showScreen("screen-scan");
-  $("scan-title").textContent = "Scan their reply code";
   const video = $("scan-video") as HTMLVideoElement;
   const hint = $("scan-hint");
   ($("scan-trouble-link") as HTMLAnchorElement).hidden = true;
@@ -326,7 +329,6 @@ function resetJoinManualSteps(): void {
 async function startJoinFlow(): Promise<void> {
   isHost = false;
   showScreen("screen-scan");
-  $("scan-title").textContent = "Scan the code on their screen";
   const video = $("scan-video") as HTMLVideoElement;
   const hint = $("scan-hint");
   const troubleLink = $("scan-trouble-link") as HTMLAnchorElement;

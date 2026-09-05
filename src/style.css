@@ -4,7 +4,7 @@
 }
 
 :root {
-  --bg: #f6f6f6;
+  --bg: #f7f7f7;
   --surface: #1d2128;
   --surface-raised: #262b34;
   --text: #000000;
@@ -154,6 +154,7 @@ body {
 .video-frame {
   width: 100%;
   max-width: 320px;
+  margin: 0 auto;
   aspect-ratio: 1;
   border-radius: var(--radius);
   overflow: hidden;
@@ -200,6 +201,7 @@ body {
 .step {
   display: flex;
   flex-direction: column;
+  /* align-items: center; */
   gap: 10px;
   opacity: 0.4;
   transition: opacity 150ms ease;
@@ -208,6 +210,10 @@ body {
 .step.is-current,
 .step.is-done {
   opacity: 1;
+}
+
+.step .hint {
+  text-align: center;
 }
 
 .step-text {
