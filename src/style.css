@@ -4,7 +4,7 @@
 }
 
 :root {
-  --bg: #14171c;
+  --bg: #f6f6f6;
   --surface: #1d2128;
   --surface-raised: #262b34;
   --text: #edeff2;
@@ -42,7 +42,7 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 24px;
+  padding: 8px;
 }
 
 .screen {
@@ -221,6 +221,15 @@ body {
   display: flex;
   flex-direction: row;
   gap: 14px;
+  background-color: var(--surface);
+  background-image: url("../assets/wall.png");
+  background-size:
+    100% 100%,
+    contain;
+  background-position: center;
+  background-repeat: no-repeat;
+  border-radius: var(--radius);
+  overflow: hidden;
 }
 
 .lane {
@@ -230,12 +239,16 @@ body {
   flex-direction: column;
   align-items: center;
   gap: 6px;
+  padding-top: 10px;
 }
 
 .lane-label {
   font-size: 12px;
-  color: var(--text-muted);
+  color: var(--text);
   font-weight: 600;
+  background: rgba(20, 23, 28, 0.55);
+  padding: 2px 10px;
+  border-radius: 999px;
 }
 
 .lane-track {
@@ -243,10 +256,6 @@ body {
   flex: 1;
   width: 72px;
   max-width: 100%;
-  background: var(--surface);
-  border-radius: 10px;
-  border: 1px solid var(--line);
-  overflow: hidden;
 }
 
 .lane-track::after {
@@ -256,8 +265,9 @@ body {
   left: 0;
   right: 0;
   height: 3px;
-  background: var(--text-muted);
-  opacity: 0.4;
+  background: var(--text);
+  opacity: 0.6;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
 }
 
 .avatar {
@@ -266,6 +276,7 @@ body {
   bottom: 4px;
   transform: translate(-50%, 0);
   font-size: 20px;
+  filter: drop-shadow(0 1px 3px rgba(0, 0, 0, 0.6));
   transition: bottom 90ms linear;
 }
 
