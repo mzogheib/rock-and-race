@@ -5,7 +5,13 @@ import {
   createAnswerBlob,
   applyAnswerBlob,
 } from "./webrtc";
-import { renderQr, startScanning, type ScanHandle } from "./qr";
+import {
+  renderQr,
+  startScanning,
+  encodeCode,
+  decodeCode,
+  type ScanHandle,
+} from "./qr";
 import { Game } from "./game";
 
 function $(id: string): HTMLElement {
@@ -25,6 +31,7 @@ let pc: RTCPeerConnection | null = null;
 let dc: RTCDataChannel | null = null;
 let game: Game | null = null;
 let activeScan: ScanHandle | null = null;
+let joinAnswerBlob: string | null = null;
 
 function resetConnection(): void {
   activeScan?.stop();
@@ -35,6 +42,41 @@ function resetConnection(): void {
   dc = null;
   pc?.close();
   pc = null;
+  joinAnswerBlob = null;
+}
+
+/** Copy text to the clipboard, falling back to the old execCommand trick if needed. */
+async function copyToClipboard(text: string): Promise<void> {
+  if (navigator.clipboard?.writeText) {
+    try {
+      await navigator.clipboard.writeText(text);
+      return;
+    } catch (err) {
+      console.error(err);
+    }
+  }
+  const textarea = document.createElement("textarea");
+  textarea.value = text;
+  textarea.style.position = "fixed";
+  textarea.style.opacity = "0";
+  document.body.appendChild(textarea);
+  textarea.select();
+  try {
+    document.execCommand("copy");
+  } catch (err) {
+    console.error(err);
+  } finally {
+    textarea.remove();
+  }
+}
+
+/** Briefly swap a button's label to confirm an action, e.g. after a copy. */
+function flashButtonLabel(btn: HTMLButtonElement, label: string): void {
+  const original = btn.textContent;
+  btn.textContent = label;
+  window.setTimeout(() => {
+    btn.textContent = original;
+  }, 1200);
 }
 
 function goHome(): void {
@@ -48,7 +90,12 @@ async function startHostFlow(): Promise<void> {
   showScreen("screen-host-qr");
   const hint = $("host-qr-hint");
   const scanAnswerBtn = $("btn-host-scan-answer") as HTMLButtonElement;
+  const copyBtn = $("btn-host-copy-code") as HTMLButtonElement;
+  const answerForm = $("host-answer-form") as HTMLFormElement;
+  const answerInput = $("host-answer-input") as HTMLInputElement;
   scanAnswerBtn.hidden = true;
+  answerForm.hidden = true;
+  answerInput.value = "";
   hint.textContent = "Preparing connection…";
 
   pc = createPeerConnection();
@@ -60,6 +107,29 @@ async function startHostFlow(): Promise<void> {
   hint.textContent = "Have them scan this, then tap below to scan their reply.";
   scanAnswerBtn.hidden = false;
   scanAnswerBtn.onclick = () => scanForAnswer();
+
+  copyBtn.onclick = () => {
+    void copyToClipboard(encodeCode(blob));
+    flashButtonLabel(copyBtn, "Copied!");
+    answerForm.hidden = false;
+    answerInput.focus();
+  };
+
+  answerForm.onsubmit = (ev) => {
+    ev.preventDefault();
+    if (!pc) return;
+    const decoded = decodeCode(answerInput.value);
+    if (!decoded) {
+      hint.textContent =
+        "That code didn\u2019t look right. Check it and try again.";
+      return;
+    }
+    hint.textContent = "Connecting…";
+    applyAnswerBlob(pc, decoded).catch((err) => {
+      hint.textContent = "That code didn\u2019t work. Check it and try again.";
+      console.error(err);
+    });
+  };
 }
 
 async function scanForAnswer(): Promise<void> {
@@ -67,6 +137,7 @@ async function scanForAnswer(): Promise<void> {
   $("scan-title").textContent = "Scan their reply code";
   const video = $("scan-video") as HTMLVideoElement;
   const hint = $("scan-hint");
+  $("scan-fallback").hidden = true;
   hint.textContent = "Looking for a code…";
 
   activeScan = await startScanning(
@@ -92,31 +163,56 @@ async function scanForAnswer(): Promise<void> {
 
 // --- Joiner flow: scan offer -> create answer -> show QR -> wait for connect ---
 
+/** Consume the host's offer (however it arrived — scanned or pasted) and show our reply. */
+async function handleOfferPayload(
+  payload: string,
+  hint: HTMLElement,
+): Promise<void> {
+  hint.textContent = "Generating your reply code…";
+  pc = createPeerConnection();
+  pc.ondatachannel = (ev) => {
+    dc = ev.channel;
+    dc.onopen = () => onDataChannelOpen();
+  };
+  try {
+    const answerBlob = await createAnswerBlob(pc, payload);
+    joinAnswerBlob = answerBlob;
+    showScreen("screen-join-qr");
+    await renderQr($("join-qr-canvas"), answerBlob);
+  } catch (err) {
+    console.error(err);
+    hint.textContent = "That code didn\u2019t look right. Try again.";
+  }
+}
+
 async function startJoinFlow(): Promise<void> {
   showScreen("screen-scan");
   $("scan-title").textContent = "Scan the code on their screen";
   const video = $("scan-video") as HTMLVideoElement;
   const hint = $("scan-hint");
+  const fallback = $("scan-fallback");
+  const codeForm = $("scan-code-form") as HTMLFormElement;
+  const codeInput = $("scan-code-input") as HTMLInputElement;
+  fallback.hidden = false;
+  codeInput.value = "";
   hint.textContent = "Looking for a code…";
+
+  codeForm.onsubmit = (ev) => {
+    ev.preventDefault();
+    const decoded = decodeCode(codeInput.value);
+    if (!decoded) {
+      hint.textContent =
+        "That code didn\u2019t look right. Check it and try again.";
+      return;
+    }
+    activeScan?.stop();
+    activeScan = null;
+    void handleOfferPayload(decoded, hint);
+  };
 
   activeScan = await startScanning(
     video,
-    async (payload) => {
-      hint.textContent = "Generating your reply code…";
-      pc = createPeerConnection();
-      pc.ondatachannel = (ev) => {
-        dc = ev.channel;
-        dc.onopen = () => onDataChannelOpen();
-      };
-      try {
-        const answerBlob = await createAnswerBlob(pc, payload);
-        showScreen("screen-join-qr");
-        await renderQr($("join-qr-canvas"), answerBlob);
-      } catch (err) {
-        console.error(err);
-        hint.textContent = "That code didn\u2019t look right. Try again.";
-      }
-    },
+    (payload) => void handleOfferPayload(payload, hint),
     (err) => {
       hint.textContent = "Camera access is needed to scan the code.";
       console.error(err);
@@ -161,6 +257,12 @@ function showResult(winner: "me" | "opp"): void {
 ($("btn-join") as HTMLButtonElement).onclick = () =>
   startJoinFlow().catch(console.error);
 ($("btn-tap") as HTMLButtonElement).onclick = () => game?.tap();
+const joinCopyBtn = $("btn-join-copy-code") as HTMLButtonElement;
+joinCopyBtn.onclick = () => {
+  if (!joinAnswerBlob) return;
+  void copyToClipboard(encodeCode(joinAnswerBlob));
+  flashButtonLabel(joinCopyBtn, "Copied!");
+};
 ($("btn-rematch") as HTMLButtonElement).onclick = () => {
   if (dc && dc.readyState === "open") {
     game?.requestRematch();

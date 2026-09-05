@@ -21,6 +21,18 @@ export async function renderQr(
   container.appendChild(canvas);
 }
 
+/** Encode a payload as text — the same compressed form the QR codes carry — for manual copy/paste. */
+export function encodeCode(payload: string): string {
+  return compressToEncodedURIComponent(payload);
+}
+
+/** Decode a manually-pasted code back into its original payload, or null if it's invalid. */
+export function decodeCode(code: string): string | null {
+  const trimmed = code.trim();
+  if (!trimmed) return null;
+  return decompressFromEncodedURIComponent(trimmed) || null;
+}
+
 export type ScanHandle = { stop: () => void };
 
 /**

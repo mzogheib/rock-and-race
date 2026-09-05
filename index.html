@@ -35,6 +35,27 @@
         <button id="btn-host-scan-answer" class="btn btn-primary" hidden>
           Scan their reply code
         </button>
+
+        <div class="fallback">
+          <p class="hint">
+            Having trouble scanning? Copy this code and send it to your
+            opponent.
+          </p>
+          <button id="btn-host-copy-code" class="btn btn-secondary">
+            Copy code
+          </button>
+          <form id="host-answer-form" class="code-entry" hidden>
+            <input
+              id="host-answer-input"
+              class="text-input"
+              type="text"
+              placeholder="Paste the code they sent back"
+              autocomplete="off"
+            />
+            <button type="submit" class="btn btn-primary">Connect</button>
+          </form>
+        </div>
+
         <button class="btn btn-ghost" data-back>Cancel</button>
       </section>
 
@@ -46,6 +67,23 @@
           <video id="scan-video" playsinline muted></video>
         </div>
         <p class="hint" id="scan-hint">Looking for a code…</p>
+
+        <div class="fallback" id="scan-fallback" hidden>
+          <p class="hint">
+            Having trouble scanning? Enter the code your opponent sent you.
+          </p>
+          <form id="scan-code-form" class="code-entry">
+            <input
+              id="scan-code-input"
+              class="text-input"
+              type="text"
+              placeholder="Paste the code here"
+              autocomplete="off"
+            />
+            <button type="submit" class="btn btn-primary">Submit</button>
+          </form>
+        </div>
+
         <button class="btn btn-ghost" data-back>Cancel</button>
       </section>
 
@@ -53,6 +91,14 @@
         <h2 class="step-title">Show this back to them</h2>
         <div id="join-qr-canvas" class="qr-frame"></div>
         <p class="hint">Waiting for them to scan and connect…</p>
+
+        <div class="fallback">
+          <p class="hint">Now send this code back to your opponent.</p>
+          <button id="btn-join-copy-code" class="btn btn-secondary">
+            Copy code
+          </button>
+        </div>
+
         <button class="btn btn-ghost" data-back>Cancel</button>
       </section>
 
