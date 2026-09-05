@@ -71,12 +71,16 @@ async function copyToClipboard(text: string): Promise<void> {
 }
 
 /** Briefly swap a button's label to confirm an action, e.g. after a copy. */
-function flashButtonLabel(btn: HTMLButtonElement, label: string): void {
+function flashButtonLabel(
+  btn: HTMLButtonElement,
+  label: string,
+  timeout = 1200,
+): void {
   const original = btn.textContent;
   btn.textContent = label;
   window.setTimeout(() => {
     btn.textContent = original;
-  }, 1200);
+  }, timeout);
 }
 
 function goHome(): void {
@@ -110,7 +114,7 @@ async function startHostFlow(): Promise<void> {
 
   copyBtn.onclick = () => {
     void copyToClipboard(encodeCode(blob));
-    flashButtonLabel(copyBtn, "Copied!");
+    flashButtonLabel(copyBtn, "Copied! Now send it to them.", 10000);
     answerForm.hidden = false;
     answerInput.focus();
   };
