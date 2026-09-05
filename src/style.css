@@ -322,7 +322,46 @@ body {
   display: block;
   height: 125px;
   width: auto;
+  transform-origin: 50% 100%;
   filter: drop-shadow(0 1px 3px rgba(0, 0, 0, 0.4));
+}
+
+.avatar-dot.twist-cw {
+  animation: twist-cw 320ms ease-out;
+}
+
+.avatar-dot.twist-ccw {
+  animation: twist-ccw 320ms ease-out;
+}
+
+@keyframes twist-cw {
+  0% {
+    transform: rotate(0deg);
+  }
+  35% {
+    transform: rotate(20deg);
+  }
+  65% {
+    transform: rotate(-4deg);
+  }
+  100% {
+    transform: rotate(0deg);
+  }
+}
+
+@keyframes twist-ccw {
+  0% {
+    transform: rotate(0deg);
+  }
+  35% {
+    transform: rotate(-20deg);
+  }
+  65% {
+    transform: rotate(4deg);
+  }
+  100% {
+    transform: rotate(0deg);
+  }
 }
 
 .avatar-name {
@@ -377,5 +416,10 @@ body {
   .avatar,
   .btn {
     transition: none;
+  }
+
+  .avatar-dot.twist-cw,
+  .avatar-dot.twist-ccw {
+    animation: none;
   }
 }
