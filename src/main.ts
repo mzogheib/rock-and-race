@@ -27,6 +27,27 @@ function showScreen(id: string): void {
     .querySelectorAll<HTMLElement>(".screen")
     .forEach((el) => el.classList.remove("active"));
   $(id).classList.add("active");
+  // The result screen is the only place it rains — leaving it should always
+  // clear any drops still falling.
+  if (id !== "screen-result") $("rain").replaceChildren();
+}
+
+const RAIN_DROP_COUNT = 28;
+
+/** Rain a given emoji down over the whole screen — 🎉 for a win, 😭 for a loss. */
+function rain(emoji: string): void {
+  const container = $("rain");
+  container.replaceChildren();
+  for (let i = 0; i < RAIN_DROP_COUNT; i++) {
+    const drop = document.createElement("span");
+    drop.className = "rain-drop";
+    drop.textContent = emoji;
+    drop.style.left = `${Math.random() * 100}%`;
+    drop.style.fontSize = `${18 + Math.random() * 20}px`;
+    drop.style.animationDuration = `${2.2 + Math.random() * 1.6}s`;
+    drop.style.animationDelay = `${Math.random() * 1.2}s`;
+    container.appendChild(drop);
+  }
 }
 
 let pc: RTCPeerConnection | null = null;
@@ -397,6 +418,7 @@ function updateTrack(me: number, opp: number): void {
 function showResult(winner: "me" | "opp"): void {
   $("result-headline").textContent = winner === "me" ? "You win!" : "You lose";
   showScreen("screen-result");
+  rain(winner === "me" ? "🎉" : "😭");
 }
 
 // --- Wire up static buttons ---
