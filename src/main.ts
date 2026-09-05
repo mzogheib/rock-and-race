@@ -61,7 +61,10 @@ let isHost = true;
 
 // ?dev=true jumps straight to the race screen with no peer connection, so
 // the "You" climber can be driven locally to iterate on the race UI quickly.
-const isDev = new URLSearchParams(location.search).get("dev") === "true";
+// ?dev=win / ?dev=lose jump straight to the result screen instead, with its
+// rain, to iterate on that without playing out a whole race.
+const devParam = new URLSearchParams(location.search).get("dev");
+const isDev = devParam === "true";
 let devMeProgress = 0;
 let devOppProgress = 0;
 
@@ -509,4 +512,6 @@ if (isDev) {
   setAvatarImages();
   showScreen("screen-race");
   updateTrack(devMeProgress, devOppProgress);
+} else if (devParam === "win" || devParam === "lose") {
+  showResult(devParam === "win" ? "me" : "opp");
 }
