@@ -22,9 +22,7 @@
         </p>
         <div class="actions">
           <button id="btn-host" class="btn btn-primary">Start a race</button>
-          <button id="btn-join" class="btn btn-secondary">
-            I have a code to scan
-          </button>
+          <button id="btn-join" class="btn btn-secondary">Join a race</button>
         </div>
       </section>
 
@@ -37,19 +35,16 @@
         </button>
 
         <div class="fallback">
-          <p class="hint">
-            Having trouble scanning? Copy this code and send it to your
-            opponent.
-          </p>
+          <p class="hint">Having trouble scanning?</p>
           <button id="btn-host-copy-code" class="btn btn-secondary">
-            Copy code
+            Copy your code
           </button>
           <form id="host-answer-form" class="code-entry" hidden>
             <input
               id="host-answer-input"
               class="text-input"
               type="text"
-              placeholder="Paste the code they sent back"
+              placeholder="Paste their code here"
               autocomplete="off"
             />
             <button type="submit" class="btn btn-primary">Go</button>
@@ -69,15 +64,13 @@
         <p class="hint" id="scan-hint">Looking for a code…</p>
 
         <div class="fallback" id="scan-fallback" hidden>
-          <p class="hint">
-            Having trouble scanning? Enter the code your opponent sent you.
-          </p>
+          <p class="hint">Having trouble scanning?</p>
           <form id="scan-code-form" class="code-entry">
             <input
               id="scan-code-input"
               class="text-input"
               type="text"
-              placeholder="Paste the code here"
+              placeholder="Enter their code here"
               autocomplete="off"
             />
             <button type="submit" class="btn btn-primary">Go</button>
@@ -93,7 +86,7 @@
         <p class="hint">Waiting for them to scan and connect…</p>
 
         <div class="fallback">
-          <p class="hint">Now send this code back to your opponent.</p>
+          <p class="hint">Now send this code back to them.</p>
           <button id="btn-join-copy-code" class="btn btn-secondary">
             Copy code
           </button>
