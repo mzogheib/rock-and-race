@@ -168,6 +168,9 @@ function setStepState(
   step
     .querySelectorAll<HTMLInputElement | HTMLButtonElement>("input, button")
     .forEach((el) => {
+      // Some inputs (e.g. the read-only code preview) must stay disabled no
+      // matter the step's state — leave those alone.
+      if (el.dataset.static !== undefined) return;
       el.disabled = state === "pending";
     });
 }
@@ -217,6 +220,8 @@ async function startHostFlow(): Promise<void> {
   const answerForm = $("host-answer-form") as HTMLFormElement;
   const answerInput = $("host-answer-input") as HTMLInputElement;
   const manualHint = $("host-manual-hint");
+
+  ($("host-code-preview") as HTMLInputElement).value = encodeCode(blob);
 
   copyBtn.onclick = () => {
     void copyToClipboard(encodeCode(blob));
@@ -479,9 +484,11 @@ joinOfferForm.onsubmit = (ev) => {
   }
   joinManualHint.textContent = "Reading their code…";
   processOffer(decoded, joinManualHint)
-    .then(() => {
+    .then((answerBlob) => {
       joinManualHint.textContent = "Waiting for them to connect…";
       if (pc) watchConnectionState(pc, joinManualHint);
+      ($("join-code-preview") as HTMLInputElement).value =
+        encodeCode(answerBlob);
       setStepState("join-step-1", "done");
       setStepState("join-step-2", "current");
     })

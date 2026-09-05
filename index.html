@@ -56,9 +56,18 @@
             <p class="step-text">
               <span class="step-number">1</span>Copy your invitation code
             </p>
-            <button id="btn-host-copy-code" class="btn btn-secondary">
-              Copy
-            </button>
+            <div class="code-entry">
+              <input
+                class="text-input"
+                id="host-code-preview"
+                type="text"
+                disabled
+                data-static
+              />
+              <button id="btn-host-copy-code" class="btn btn-secondary">
+                Copy
+              </button>
+            </div>
           </li>
           <li class="step" id="host-step-2">
             <p class="step-text">
@@ -129,9 +138,18 @@
               <span class="step-number">2</span>Copy and send this reply code
               back to them
             </p>
-            <button id="btn-join-copy-code" class="btn btn-secondary">
-              Copy
-            </button>
+            <div class="code-entry">
+              <input
+                class="text-input"
+                id="join-code-preview"
+                type="text"
+                disabled
+                data-static
+              />
+              <button id="btn-join-copy-code" class="btn btn-secondary">
+                Copy
+              </button>
+            </div>
           </li>
         </ol>
         <p class="hint" id="join-manual-hint"></p>
