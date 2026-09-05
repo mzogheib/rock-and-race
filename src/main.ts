@@ -184,6 +184,18 @@ function resetHostManualSteps(): void {
   ($("host-answer-input") as HTMLInputElement).value = "";
 }
 
+/**
+ * Jump straight to "paste their reply code" — for when the host is already
+ * scanning for the reply (so their own invitation code is already shared)
+ * but the camera isn't picking it up.
+ */
+function continueHostFallback(): void {
+  setStepState("host-step-1", "done");
+  setStepState("host-step-2", "current");
+  $("host-manual-hint").textContent = "";
+  showScreen("screen-host-manual");
+}
+
 async function startHostFlow(): Promise<void> {
   isHost = true;
   showScreen("screen-host-qr");
@@ -226,8 +238,7 @@ async function startHostFlow(): Promise<void> {
     void copyToClipboard(encodeCode(blob));
     flashButtonLabel(copyBtn, "Copied!");
     setStepState("host-step-1", "done");
-    setStepState("host-step-2", "done");
-    setStepState("host-step-3", "current");
+    setStepState("host-step-2", "current");
     answerInput.focus();
   };
 
@@ -255,9 +266,15 @@ async function startHostFlow(): Promise<void> {
 
 async function scanForAnswer(): Promise<void> {
   showScreen("screen-scan");
+  $("scan-step-1-text").textContent = "Scan your opponent's reply code";
   const video = $("scan-video") as HTMLVideoElement;
   const hint = $("scan-hint");
-  ($("scan-trouble-link") as HTMLAnchorElement).hidden = true;
+  const troubleLink = $("scan-trouble-link") as HTMLAnchorElement;
+  troubleLink.hidden = false;
+  troubleLink.onclick = (ev) => {
+    ev.preventDefault();
+    continueHostFallback();
+  };
   hint.textContent = "Looking for a code…";
 
   activeScan = await startScanning(
@@ -330,15 +347,37 @@ function resetJoinManualSteps(): void {
   ($("join-offer-input") as HTMLInputElement).value = "";
 }
 
+// "Back to QR code" on the manual-connect screen returns to whichever
+// screen the player fell back from — the camera, or the reply QR they'd
+// already gotten to.
+let joinManualBackTarget = "screen-scan";
+
+/**
+ * Jump straight to "send this reply code" — for when the player already
+ * has a reply ready (they're looking at its QR) but the host can't scan it.
+ */
+function continueJoinFallback(): void {
+  if (!joinAnswerBlob) return;
+  joinManualBackTarget = "screen-join-qr";
+  ($("join-code-preview") as HTMLInputElement).value =
+    encodeCode(joinAnswerBlob);
+  $("join-manual-hint").textContent = "";
+  setStepState("join-step-1", "done");
+  setStepState("join-step-2", "current");
+  showScreen("screen-join-manual");
+}
+
 async function startJoinFlow(): Promise<void> {
   isHost = false;
   showScreen("screen-scan");
+  $("scan-step-1-text").textContent = "Scan your opponent's invitation code";
   const video = $("scan-video") as HTMLVideoElement;
   const hint = $("scan-hint");
   const troubleLink = $("scan-trouble-link") as HTMLAnchorElement;
   troubleLink.hidden = false;
   troubleLink.onclick = (ev) => {
     ev.preventDefault();
+    joinManualBackTarget = "screen-scan";
     resetJoinManualSteps();
     showScreen("screen-join-manual");
   };
@@ -505,13 +544,20 @@ joinCopyBtn.onclick = () => {
   flashButtonLabel(joinCopyBtn, "Copied!");
 };
 
+($("join-qr-trouble-link") as HTMLAnchorElement).onclick = (ev) => {
+  ev.preventDefault();
+  continueJoinFallback();
+};
+
 document
   .querySelectorAll<HTMLAnchorElement>("[data-manual-back]")
   .forEach((link) => {
     link.onclick = (ev) => {
       ev.preventDefault();
       showScreen(
-        link.dataset.manualBack === "host" ? "screen-host-qr" : "screen-scan",
+        link.dataset.manualBack === "host"
+          ? "screen-host-qr"
+          : joinManualBackTarget,
       );
     };
   });
