@@ -11,8 +11,8 @@ export default defineConfig(({ command }) => {
   // dev if the cert files aren't present locally — so this is safe to keep
   // committed without breaking CI or a fresh clone.
   if (command === "serve") {
-    const keyPath = "./192.168.1.23-key.pem";
-    const certPath = "./192.168.1.23.pem";
+    const keyPath = "./certs/192.168.1.107+1-key.pem";
+    const certPath = "./certs/192.168.1.107+1.pem";
     if (fs.existsSync(keyPath) && fs.existsSync(certPath)) {
       return {
         ...base,
@@ -24,6 +24,10 @@ export default defineConfig(({ command }) => {
           },
         },
       };
+    } else {
+      console.warn(
+        "HTTPS cert files not found. Serving over HTTP. Camera access may be blocked on some devices.",
+      );
     }
   }
 
