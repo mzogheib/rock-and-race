@@ -277,7 +277,7 @@ body {
 
 #screen-race {
   gap: 20px;
-  height: calc(100dvh - 48px);
+  height: calc(100dvh - 16px); /* matches #app's 8px top/bottom padding */
   padding-bottom: calc(var(--tap-size) + 16px);
 }
 
@@ -295,7 +295,7 @@ body {
 
 .trophy {
   position: absolute;
-  top: -15px;
+  top: 15px;
   left: 47%;
   transform: translateX(-50%);
   font-size: 64px;

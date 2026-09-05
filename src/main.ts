@@ -377,7 +377,9 @@ function zigzagOffset(progress: number): number {
 
 function positionAvatar(el: HTMLElement, progress: number, startX: number) {
   const track = el.parentElement as HTMLElement;
-  const trackHeight = track.clientHeight - 28;
+  // Reserve room for the avatar's own height (plus a little breathing room)
+  // so it never climbs past the top edge of the track, however tall it is.
+  const trackHeight = Math.max(0, track.clientHeight - el.offsetHeight - 8);
   const towardCenter = Math.sign(LANE_CONVERGE - startX) || 1;
   const baseX = startX + (LANE_CONVERGE - startX) * progress;
   const x = baseX + towardCenter * zigzagOffset(progress);
