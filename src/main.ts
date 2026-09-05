@@ -237,7 +237,6 @@ function onDataChannelOpen(): void {
 
 function startGame(): void {
   if (!dc) return;
-  $("track").classList.toggle("joiner", !isHost);
   game = new Game(dc, {
     onProgress: (me, opp) => updateTrack(me, opp),
     onWin: (winner) => showResult(winner),
@@ -248,11 +247,25 @@ function startGame(): void {
   game.start();
 }
 
+// Both climbers start apart at the bottom corners and converge on the
+// trophy at top-center as they climb. The host always starts bottom-left,
+// the joiner always bottom-right — the same physical layout on both screens.
+const LANE_START_LEFT = 22; // % from the left edge
+const LANE_START_RIGHT = 78;
+const LANE_CONVERGE = 50; // meets under the trophy
+
+function positionAvatar(el: HTMLElement, progress: number, startX: number) {
+  const track = el.parentElement as HTMLElement;
+  const trackHeight = track.clientHeight - 28;
+  el.style.left = `${startX + (LANE_CONVERGE - startX) * progress}%`;
+  el.style.bottom = `${4 + progress * trackHeight}px`;
+}
+
 function updateTrack(me: number, opp: number): void {
-  const trackHeight =
-    ($("avatar-me").parentElement as HTMLElement).clientHeight - 28;
-  ($("avatar-me") as HTMLElement).style.bottom = `${4 + me * trackHeight}px`;
-  ($("avatar-opp") as HTMLElement).style.bottom = `${4 + opp * trackHeight}px`;
+  const meStartX = isHost ? LANE_START_LEFT : LANE_START_RIGHT;
+  const oppStartX = isHost ? LANE_START_RIGHT : LANE_START_LEFT;
+  positionAvatar($("avatar-me") as HTMLElement, me, meStartX);
+  positionAvatar($("avatar-opp") as HTMLElement, opp, oppStartX);
 }
 
 function showResult(winner: "me" | "opp"): void {
