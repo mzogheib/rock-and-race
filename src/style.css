@@ -62,7 +62,8 @@ body {
 .hero-wall {
   width: 100vw;
   margin-left: calc(50% - 50vw);
-  height: min(38vh, 260px);
+  margin-top: -24px;
+  height: min(30vh, 210px);
   background-image: url("../assets/wall.png");
   background-size: contain;
   background-position: center;
@@ -84,6 +85,28 @@ body {
   margin: -12px 0 0;
   font-size: 15px;
   max-width: 32ch;
+}
+
+.how-to {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: 100%;
+  max-width: 320px;
+  margin: 0 auto;
+  padding: 16px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  text-align: left;
+}
+
+.how-to-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 14px;
+  color: var(--text-muted);
 }
 
 .step-title {
