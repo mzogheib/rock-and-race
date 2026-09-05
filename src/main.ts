@@ -260,7 +260,8 @@ function showResult(winner: "me" | "opp"): void {
   startHostFlow().catch(console.error);
 ($("btn-join") as HTMLButtonElement).onclick = () =>
   startJoinFlow().catch(console.error);
-($("btn-tap") as HTMLButtonElement).onclick = () => game?.tap();
+($("btn-tap-left") as HTMLButtonElement).onclick = () => game?.tap();
+($("btn-tap-right") as HTMLButtonElement).onclick = () => game?.tap();
 const joinCopyBtn = $("btn-join-copy-code") as HTMLButtonElement;
 joinCopyBtn.onclick = () => {
   if (!joinAnswerBlob) return;

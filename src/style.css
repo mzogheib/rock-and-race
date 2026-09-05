@@ -267,24 +267,37 @@ body {
 }
 
 .tap-button {
-  width: 100%;
-  aspect-ratio: 1.4;
-  max-height: 220px;
+  position: fixed;
+  bottom: env(safe-area-inset-bottom, 0);
+  width: 42vw;
+  max-width: 220px;
+  aspect-ratio: 1;
   border: none;
-  border-radius: 24px;
   background: var(--p1);
   color: #1a0505;
-  font-size: 28px;
+  font-size: 17px;
   font-weight: 800;
+  text-transform: uppercase;
   letter-spacing: 0.02em;
   cursor: pointer;
   user-select: none;
   -webkit-user-select: none;
   touch-action: manipulation;
+  z-index: 5;
 }
 
 .tap-button:active {
   transform: scale(0.96);
+}
+
+.tap-button-left {
+  left: env(safe-area-inset-left, 0);
+  border-radius: 0 20px 0 0;
+}
+
+.tap-button-right {
+  right: env(safe-area-inset-right, 0);
+  border-radius: 20px 0 0 0;
 }
 
 .result-headline {
