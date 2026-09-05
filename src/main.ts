@@ -243,10 +243,10 @@ function startGame(): void {
 }
 
 function updateTrack(me: number, opp: number): void {
-  const trackWidth =
-    ($("avatar-me").parentElement as HTMLElement).clientWidth - 28;
-  ($("avatar-me") as HTMLElement).style.left = `${4 + me * trackWidth}px`;
-  ($("avatar-opp") as HTMLElement).style.left = `${4 + opp * trackWidth}px`;
+  const trackHeight =
+    ($("avatar-me").parentElement as HTMLElement).clientHeight - 28;
+  ($("avatar-me") as HTMLElement).style.bottom = `${4 + me * trackHeight}px`;
+  ($("avatar-opp") as HTMLElement).style.bottom = `${4 + opp * trackHeight}px`;
 }
 
 function showResult(winner: "me" | "opp"): void {

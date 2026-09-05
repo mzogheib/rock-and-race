@@ -13,6 +13,7 @@
   --p2: #34c6c6;
   --line: #2c313a;
   --radius: 14px;
+  --tap-size: min(42vw, 220px);
 }
 
 * {
@@ -208,19 +209,26 @@ body {
 /* Race screen */
 
 #screen-race {
-  gap: 32px;
+  gap: 20px;
+  height: calc(100dvh - 48px);
+  padding-bottom: calc(var(--tap-size) + 16px);
 }
 
 .track {
   width: 100%;
+  flex: 1;
+  min-height: 0;
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
   gap: 14px;
 }
 
 .lane {
+  flex: 1;
+  height: 100%;
   display: flex;
   flex-direction: column;
+  align-items: center;
   gap: 6px;
 }
 
@@ -232,7 +240,9 @@ body {
 
 .lane-track {
   position: relative;
-  height: 46px;
+  flex: 1;
+  width: 72px;
+  max-width: 100%;
   background: var(--surface);
   border-radius: 10px;
   border: 1px solid var(--line);
@@ -242,21 +252,21 @@ body {
 .lane-track::after {
   content: "";
   position: absolute;
-  right: 10px;
-  top: 0;
-  bottom: 0;
-  width: 3px;
+  top: 10px;
+  left: 0;
+  right: 0;
+  height: 3px;
   background: var(--text-muted);
   opacity: 0.4;
 }
 
 .avatar {
   position: absolute;
-  top: 50%;
-  left: 4px;
-  transform: translate(0, -50%) rotate(90deg);
+  left: 50%;
+  bottom: 4px;
+  transform: translate(-50%, 0);
   font-size: 20px;
-  transition: left 90ms linear;
+  transition: bottom 90ms linear;
 }
 
 .lane-me .avatar {
@@ -269,8 +279,7 @@ body {
 .tap-button {
   position: fixed;
   bottom: env(safe-area-inset-bottom, 0);
-  width: 42vw;
-  max-width: 220px;
+  width: var(--tap-size);
   aspect-ratio: 1;
   border: none;
   background: var(--p1);
