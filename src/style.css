@@ -227,6 +227,7 @@ body {
 }
 
 .track {
+  position: relative;
   width: 100%;
   flex: 1;
   min-height: 0;
@@ -238,6 +239,17 @@ body {
   background-position: center;
   background-repeat: no-repeat;
   border-radius: var(--radius);
+}
+
+.trophy {
+  position: absolute;
+  top: -15px;
+  left: 47%;
+  transform: translateX(-50%);
+  font-size: 64px;
+  line-height: 1;
+  filter: drop-shadow(0 1px 3px rgba(0, 0, 0, 0.5));
+  z-index: 2;
 }
 
 .lane {
