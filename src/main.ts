@@ -13,6 +13,8 @@ import {
   type ScanHandle,
 } from "./qr";
 import { Game, TAPS_TO_WIN } from "./game";
+import hostAvatar from "../assets/player_host.png";
+import guestAvatar from "../assets/player_guest.png";
 
 function $(id: string): HTMLElement {
   const el = document.getElementById(id);
@@ -328,8 +330,20 @@ function onDataChannelOpen(): void {
   startGame();
 }
 
+// The host and joiner each render as a distinct character, consistently
+// across both screens — not tied to "me" vs "them".
+function setAvatarImages(): void {
+  ($("avatar-me-dot") as HTMLImageElement).src = isHost
+    ? hostAvatar
+    : guestAvatar;
+  ($("avatar-opp-dot") as HTMLImageElement).src = isHost
+    ? guestAvatar
+    : hostAvatar;
+}
+
 function startGame(): void {
   if (!dc) return;
+  setAvatarImages();
   game = new Game(dc, {
     onProgress: (me, opp) => updateTrack(me, opp),
     onWin: (winner) => showResult(winner),
@@ -457,6 +471,7 @@ document.querySelectorAll<HTMLElement>("[data-back]").forEach((btn) => {
 });
 
 if (isDev) {
+  setAvatarImages();
   showScreen("screen-race");
   updateTrack(devMeProgress, devOppProgress);
 }

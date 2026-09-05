@@ -319,12 +319,10 @@ body {
 }
 
 .avatar-dot {
-  width: 60px;
-  height: 60px;
-  border-radius: 50%;
-  background: #fff;
-  border: 2px solid #000;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
+  display: block;
+  height: 125px;
+  width: auto;
+  filter: drop-shadow(0 1px 3px rgba(0, 0, 0, 0.4));
 }
 
 .avatar-name {
