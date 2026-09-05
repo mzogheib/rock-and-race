@@ -92,6 +92,33 @@ function flashButtonLabel(
   }, timeout);
 }
 
+/**
+ * Surface the browser's own WebRTC connection state as plain-language
+ * status, for the stretch after codes have been exchanged where the two
+ * devices are actually finding each other and connecting.
+ */
+function watchConnectionState(
+  peer: RTCPeerConnection,
+  hint: HTMLElement,
+): void {
+  const describe = () => {
+    switch (peer.connectionState) {
+      case "connecting":
+        hint.textContent = "Found them! Connecting…";
+        break;
+      case "connected":
+        hint.textContent = "Connected! Starting the race…";
+        break;
+      case "failed":
+      case "disconnected":
+        hint.textContent = "Lost the connection. Go back and try again.";
+        break;
+    }
+  };
+  peer.onconnectionstatechange = describe;
+  describe();
+}
+
 function goHome(): void {
   resetConnection();
   showScreen("screen-start");
@@ -179,12 +206,16 @@ async function startHostFlow(): Promise<void> {
         "That code didn\u2019t look right. Check it and try again.";
       return;
     }
-    manualHint.textContent = "Connecting…";
-    applyAnswerBlob(pc, decoded).catch((err) => {
-      manualHint.textContent =
-        "That code didn\u2019t work. Check it and try again.";
-      console.error(err);
-    });
+    manualHint.textContent = "Reading their code…";
+    applyAnswerBlob(pc, decoded)
+      .then(() => {
+        if (pc) watchConnectionState(pc, manualHint);
+      })
+      .catch((err) => {
+        manualHint.textContent =
+          "That code didn\u2019t work. Check it and try again.";
+        console.error(err);
+      });
   };
 }
 
@@ -200,10 +231,11 @@ async function scanForAnswer(): Promise<void> {
     video,
     async (payload) => {
       if (!pc) return;
-      hint.textContent = "Connecting…";
+      hint.textContent = "Reading their code…";
       try {
         await applyAnswerBlob(pc, payload);
         // Connection completes async via dc.onopen -> onDataChannelOpen
+        watchConnectionState(pc, hint);
       } catch (err) {
         hint.textContent = "That code didn\u2019t work. Try scanning again.";
         console.error(err);
@@ -220,11 +252,21 @@ async function scanForAnswer(): Promise<void> {
 // --- Joiner flow: scan offer -> create answer -> show QR -> wait for connect ---
 
 /** Consume the host's offer, whichever way it arrived, and stash our reply. */
-async function processOffer(payload: string): Promise<string> {
+async function processOffer(
+  payload: string,
+  hint: HTMLElement,
+): Promise<string> {
   pc = createPeerConnection();
   pc.ondatachannel = (ev) => {
     dc = ev.channel;
     dc.onopen = () => onDataChannelOpen();
+  };
+  // ICE gathering (finding our own reachable network paths, via a STUN
+  // server) is the one genuinely slow step here — worth calling out.
+  pc.onicegatheringstatechange = () => {
+    if (pc?.iceGatheringState === "gathering") {
+      hint.textContent = "Finding your connection path…";
+    }
   };
   const answerBlob = await createAnswerBlob(pc, payload);
   joinAnswerBlob = answerBlob;
@@ -236,11 +278,12 @@ async function handleScannedOffer(
   payload: string,
   hint: HTMLElement,
 ): Promise<void> {
-  hint.textContent = "Generating your reply code…";
+  hint.textContent = "Reading their code…";
   try {
-    const answerBlob = await processOffer(payload);
+    const answerBlob = await processOffer(payload, hint);
     showScreen("screen-join-qr");
     await renderQr($("join-qr-canvas"), answerBlob);
+    if (pc) watchConnectionState(pc, $("join-qr-hint"));
   } catch (err) {
     console.error(err);
     hint.textContent = "That code didn\u2019t look right. Try again.";
@@ -369,10 +412,11 @@ joinOfferForm.onsubmit = (ev) => {
       "That code didn\u2019t look right. Check it and try again.";
     return;
   }
-  joinManualHint.textContent = "Generating your reply code…";
-  processOffer(decoded)
+  joinManualHint.textContent = "Reading their code…";
+  processOffer(decoded, joinManualHint)
     .then(() => {
-      joinManualHint.textContent = "";
+      joinManualHint.textContent = "Waiting for them to connect…";
+      if (pc) watchConnectionState(pc, joinManualHint);
       setStepState("join-step-1", "done");
       setStepState("join-step-2", "current");
     })
