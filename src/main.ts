@@ -108,7 +108,7 @@ async function startHostFlow(): Promise<void> {
   dc.onopen = () => onDataChannelOpen();
 
   await renderQr($("host-qr-canvas"), blob);
-  hint.textContent = "Have them scan this, then tap below to scan their reply.";
+  hint.textContent = "Then tap below to scan their reply.";
   scanAnswerBtn.hidden = false;
   scanAnswerBtn.onclick = () => scanForAnswer();
 
@@ -266,7 +266,7 @@ const joinCopyBtn = $("btn-join-copy-code") as HTMLButtonElement;
 joinCopyBtn.onclick = () => {
   if (!joinAnswerBlob) return;
   void copyToClipboard(encodeCode(joinAnswerBlob));
-  flashButtonLabel(joinCopyBtn, "Copied!");
+  flashButtonLabel(joinCopyBtn, "Copied! Now send it to them.", 10000);
 };
 ($("btn-rematch") as HTMLButtonElement).onclick = () => {
   if (dc && dc.readyState === "open") {

@@ -7,8 +7,8 @@
   --bg: #f6f6f6;
   --surface: #1d2128;
   --surface-raised: #262b34;
-  --text: #edeff2;
-  --text-muted: #8b93a1;
+  --text: #000000;
+  --text-muted: #434343;
   --p1: #ff5d5d;
   --p2: #34c6c6;
   --line: #2c313a;
@@ -106,14 +106,14 @@ body {
 }
 
 .btn-primary {
-  background: var(--p2);
-  color: #0b1113;
+  background: #8b4b0d;
+  color: #ffffff;
 }
 
 .btn-secondary {
-  background: var(--surface-raised);
-  color: var(--text);
-  border: 1px solid var(--line);
+  background: #ffffff;
+  color: #8b4b0d;
+  border: 1px solid #8b4b0d;
 }
 
 .btn-ghost {
@@ -196,7 +196,7 @@ body {
   padding: 13px 14px;
   border-radius: var(--radius);
   border: 1px solid var(--line);
-  background: var(--surface);
+  background: #fff;
   color: var(--text);
   font-size: 15px;
   font-family: inherit;
@@ -280,8 +280,8 @@ body {
   width: var(--tap-size);
   aspect-ratio: 1;
   border: none;
-  background: #cd9054;
-  color: #1a0505;
+  background: #8b4b0d;
+  color: #ffffff;
   font-size: 17px;
   font-weight: 800;
   text-transform: uppercase;
