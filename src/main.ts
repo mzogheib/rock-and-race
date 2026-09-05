@@ -411,7 +411,18 @@ function positionAvatar(el: HTMLElement, progress: number, startX: number) {
   el.style.bottom = `${4 + progress * trackHeight}px`;
 }
 
+// We aren't told which button the opponent pressed, so their twist just
+// alternates direction each tap — enough to read as "they're climbing too".
+let lastOppProgress = 0;
+let nextOppTwist: "cw" | "ccw" = "cw";
+
 function updateTrack(me: number, opp: number): void {
+  if (opp > lastOppProgress) {
+    triggerTwist("avatar-opp-dot", nextOppTwist);
+    nextOppTwist = nextOppTwist === "cw" ? "ccw" : "cw";
+  }
+  lastOppProgress = opp;
+
   const meStartX = isHost ? LANE_START_LEFT : LANE_START_RIGHT;
   const oppStartX = isHost ? LANE_START_RIGHT : LANE_START_LEFT;
   positionAvatar($("avatar-me") as HTMLElement, me, meStartX);
@@ -432,8 +443,8 @@ function showResult(winner: "me" | "opp"): void {
   startJoinFlow().catch(console.error);
 // Each tap button twists "You" toward its own side, then springs back to
 // center — left twists counter-clockwise, right twists clockwise.
-function triggerTwist(direction: "cw" | "ccw"): void {
-  const dot = $("avatar-me-dot");
+function triggerTwist(dotId: string, direction: "cw" | "ccw"): void {
+  const dot = $(dotId);
   const twistClass = direction === "cw" ? "twist-cw" : "twist-ccw";
   dot.classList.remove("twist-cw", "twist-ccw");
   void dot.offsetWidth; // force reflow so a rapid re-tap restarts the animation
@@ -441,7 +452,7 @@ function triggerTwist(direction: "cw" | "ccw"): void {
 }
 
 function handleTap(direction: "cw" | "ccw"): void {
-  triggerTwist(direction);
+  triggerTwist("avatar-me-dot", direction);
   if (game) {
     game.tap();
     return;
