@@ -279,3 +279,10 @@ joinCopyBtn.onclick = () => {
 document.querySelectorAll<HTMLElement>("[data-back]").forEach((btn) => {
   btn.onclick = () => goHome();
 });
+
+// --- Dev helper: ?dev=true jumps straight to the race screen, with no peer
+// connection required, so the race UI can be iterated on quickly. ---
+if (new URLSearchParams(location.search).get("dev") === "true") {
+  showScreen("screen-race");
+  updateTrack(0.4, 0.65);
+}
