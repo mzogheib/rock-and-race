@@ -8,7 +8,31 @@
 // A public STUN server is used to discover reachable candidates. This is a
 // public service call from the browser, not a backend we run or host.
 
-const ICE_SERVERS: RTCIceServer[] = [{ urls: "stun:stun.l.google.com:19302" }];
+const ICE_SERVERS: RTCIceServer[] = [
+  { urls: "stun:stun.l.google.com:19302" },
+  // Free public TURN relay (Open Relay Project / metered.ca). Needed as a
+  // fallback when direct peer-to-peer fails — most commonly when one device
+  // is on a cellular network behind carrier-grade NAT, where STUN alone
+  // often isn't enough to establish a direct connection. These are shared,
+  // rate-limited demo credentials: fine for a hobby project, but if this
+  // ever gets flaky under load, swap in your own TURN credentials (e.g.
+  // from metered.ca's free tier, which gives you a private quota).
+  {
+    urls: "turn:openrelay.metered.ca:80",
+    username: "openrelayproject",
+    credential: "openrelayproject",
+  },
+  {
+    urls: "turn:openrelay.metered.ca:443",
+    username: "openrelayproject",
+    credential: "openrelayproject",
+  },
+  {
+    urls: "turn:openrelay.metered.ca:443?transport=tcp",
+    username: "openrelayproject",
+    credential: "openrelayproject",
+  },
+];
 
 export function createPeerConnection(): RTCPeerConnection {
   return new RTCPeerConnection({ iceServers: ICE_SERVERS });
