@@ -395,7 +395,7 @@ function updateTrack(me: number, opp: number): void {
 }
 
 function showResult(winner: "me" | "opp"): void {
-  $("result-headline").textContent = winner === "me" ? "You win" : "You lose";
+  $("result-headline").textContent = winner === "me" ? "You win!" : "You lose";
   showScreen("screen-result");
 }
 
