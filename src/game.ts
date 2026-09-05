@@ -46,6 +46,10 @@ export class Game {
     this.myProgress = Math.min(1, this.myTaps / TAPS_TO_WIN);
     this.callbacks.onProgress(this.myProgress, this.oppProgress);
     if (this.myProgress >= 1) {
+      // Send the winning progress value before we stop broadcasting —
+      // otherwise the opponent never receives the message that would tell
+      // them the race is over.
+      this.broadcastProgress();
       this.declareWin("me");
     }
   }
