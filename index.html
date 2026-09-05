@@ -32,24 +32,47 @@
         <button id="btn-host-scan-answer" class="btn btn-primary" hidden>
           Scan their reply code
         </button>
+        <a href="#" class="link" id="host-trouble-link" hidden
+          >Having trouble scanning?</a
+        >
+        <button class="btn btn-ghost" data-back>Cancel</button>
+      </section>
 
-        <div class="fallback">
-          <p class="hint">Having trouble scanning?</p>
-          <button id="btn-host-copy-code" class="btn btn-secondary">
-            Copy your code
-          </button>
-          <form id="host-answer-form" class="code-entry" hidden>
-            <input
-              id="host-answer-input"
-              class="text-input"
-              type="text"
-              placeholder="Then paste their code here"
-              autocomplete="off"
-            />
-            <button type="submit" class="btn btn-primary">Go</button>
-          </form>
-        </div>
-
+      <section id="screen-host-manual" class="screen">
+        <h2 class="step-title">Connect without scanning</h2>
+        <ol class="steps">
+          <li class="step" id="host-step-1">
+            <p class="step-text">
+              <span class="step-number">1</span>Copy your code
+            </p>
+            <button id="btn-host-copy-code" class="btn btn-secondary">
+              Copy code
+            </button>
+          </li>
+          <li class="step" id="host-step-2">
+            <p class="step-text">
+              <span class="step-number">2</span>Send the code to your opponent
+            </p>
+          </li>
+          <li class="step" id="host-step-3">
+            <p class="step-text">
+              <span class="step-number">3</span>Copy and paste your opponent's
+              reply code
+            </p>
+            <form id="host-answer-form" class="code-entry">
+              <input
+                id="host-answer-input"
+                class="text-input"
+                type="text"
+                placeholder="Paste their code here"
+                autocomplete="off"
+              />
+              <button type="submit" class="btn btn-primary">Go</button>
+            </form>
+          </li>
+        </ol>
+        <p class="hint" id="host-manual-hint"></p>
+        <a href="#" class="link" data-manual-back="host">Back to QR code</a>
         <button class="btn btn-ghost" data-back>Cancel</button>
       </section>
 
@@ -61,21 +84,43 @@
           <video id="scan-video" playsinline muted></video>
         </div>
         <p class="hint" id="scan-hint">Looking for a code…</p>
+        <a href="#" class="link" id="scan-trouble-link" hidden
+          >Having trouble scanning?</a
+        >
+        <button class="btn btn-ghost" data-back>Cancel</button>
+      </section>
 
-        <div class="fallback" id="scan-fallback" hidden>
-          <p class="hint">Having trouble scanning?</p>
-          <form id="scan-code-form" class="code-entry">
-            <input
-              id="scan-code-input"
-              class="text-input"
-              type="text"
-              placeholder="Enter their code here"
-              autocomplete="off"
-            />
-            <button type="submit" class="btn btn-primary">Go</button>
-          </form>
-        </div>
-
+      <section id="screen-join-manual" class="screen">
+        <h2 class="step-title">Connect without scanning</h2>
+        <ol class="steps">
+          <li class="step" id="join-step-1">
+            <p class="step-text">
+              <span class="step-number">1</span>Copy and paste your opponent's
+              code
+            </p>
+            <form id="join-offer-form" class="code-entry">
+              <input
+                id="join-offer-input"
+                class="text-input"
+                type="text"
+                placeholder="Paste their code here"
+                autocomplete="off"
+              />
+              <button type="submit" class="btn btn-primary">Go</button>
+            </form>
+          </li>
+          <li class="step" id="join-step-2">
+            <p class="step-text">
+              <span class="step-number">2</span>Send this reply code to your
+              opponent
+            </p>
+            <button id="btn-join-copy-code" class="btn btn-secondary">
+              Copy code
+            </button>
+          </li>
+        </ol>
+        <p class="hint" id="join-manual-hint"></p>
+        <a href="#" class="link" data-manual-back="join">Back to QR code</a>
         <button class="btn btn-ghost" data-back>Cancel</button>
       </section>
 
@@ -83,14 +128,6 @@
         <h2 class="step-title">Show this back to them</h2>
         <div id="join-qr-canvas" class="qr-frame"></div>
         <p class="hint">Waiting for them to scan and connect…</p>
-
-        <div class="fallback">
-          <p class="hint">Is your opponent having trouble scanning?</p>
-          <button id="btn-join-copy-code" class="btn btn-secondary">
-            Copy code
-          </button>
-        </div>
-
         <button class="btn btn-ghost" data-back>Cancel</button>
       </section>
 

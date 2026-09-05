@@ -174,14 +174,69 @@ body {
   min-height: 18px;
 }
 
-.fallback {
+.link {
+  background: none;
+  border: none;
+  padding: 0;
+  color: #8b4b0d;
+  font-size: 14px;
+  font-weight: 600;
+  text-decoration: underline;
+  cursor: pointer;
+  font-family: inherit;
+}
+
+.steps {
+  list-style: none;
   display: flex;
   flex-direction: column;
-  align-items: center;
-  gap: 12px;
+  gap: 20px;
   width: 100%;
-  padding-top: 16px;
-  border-top: 1px solid var(--line);
+  padding: 0;
+  margin: 0;
+  text-align: left;
+}
+
+.step {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  opacity: 0.4;
+  transition: opacity 150ms ease;
+}
+
+.step.is-current,
+.step.is-done {
+  opacity: 1;
+}
+
+.step-text {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 15px;
+  font-weight: 600;
+  margin: 0;
+}
+
+.step-number {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  background: #e2e2e2;
+  color: #000;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.step.is-current .step-number,
+.step.is-done .step-number {
+  background: #8b4b0d;
+  color: #fff;
 }
 
 .code-entry {

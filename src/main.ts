@@ -97,19 +97,47 @@ function goHome(): void {
   showScreen("screen-start");
 }
 
+/**
+ * Mark a step in a "connect without scanning" list as not-yet-reachable
+ * ("pending", dimmed and disabled), the thing to do right now ("current"),
+ * or already handled ("done", dimmed but left interactive). This is what
+ * makes it obvious what to do next regardless of how a player got there —
+ * e.g. giving up on the camera partway through and switching to this flow
+ * always lands on step 1 as "current", with the rest visibly not yet due.
+ */
+function setStepState(
+  stepId: string,
+  state: "pending" | "current" | "done",
+): void {
+  const step = $(stepId);
+  step.classList.toggle("is-current", state === "current");
+  step.classList.toggle("is-done", state === "done");
+  step
+    .querySelectorAll<HTMLInputElement | HTMLButtonElement>("input, button")
+    .forEach((el) => {
+      el.disabled = state === "pending";
+    });
+}
+
 // --- Host flow: create offer -> show QR -> scan answer -> connect ---
+
+function resetHostManualSteps(): void {
+  setStepState("host-step-1", "current");
+  setStepState("host-step-2", "pending");
+  setStepState("host-step-3", "pending");
+  $("host-manual-hint").textContent = "";
+  ($("host-answer-input") as HTMLInputElement).value = "";
+}
 
 async function startHostFlow(): Promise<void> {
   isHost = true;
   showScreen("screen-host-qr");
   const hint = $("host-qr-hint");
   const scanAnswerBtn = $("btn-host-scan-answer") as HTMLButtonElement;
-  const copyBtn = $("btn-host-copy-code") as HTMLButtonElement;
-  const answerForm = $("host-answer-form") as HTMLFormElement;
-  const answerInput = $("host-answer-input") as HTMLInputElement;
+  const troubleLink = $("host-trouble-link") as HTMLAnchorElement;
   scanAnswerBtn.hidden = true;
-  answerForm.hidden = true;
-  answerInput.value = "";
+  troubleLink.hidden = true;
+  resetHostManualSteps();
   hint.textContent = "Preparing connection…";
 
   pc = createPeerConnection();
@@ -121,11 +149,24 @@ async function startHostFlow(): Promise<void> {
   hint.textContent = "Then tap below to scan their reply.";
   scanAnswerBtn.hidden = false;
   scanAnswerBtn.onclick = () => scanForAnswer();
+  troubleLink.hidden = false;
+  troubleLink.onclick = (ev) => {
+    ev.preventDefault();
+    resetHostManualSteps();
+    showScreen("screen-host-manual");
+  };
+
+  const copyBtn = $("btn-host-copy-code") as HTMLButtonElement;
+  const answerForm = $("host-answer-form") as HTMLFormElement;
+  const answerInput = $("host-answer-input") as HTMLInputElement;
+  const manualHint = $("host-manual-hint");
 
   copyBtn.onclick = () => {
     void copyToClipboard(encodeCode(blob));
-    flashButtonLabel(copyBtn, "Copied! Now send it to them.", 10000);
-    answerForm.hidden = false;
+    flashButtonLabel(copyBtn, "Copied!");
+    setStepState("host-step-1", "done");
+    setStepState("host-step-2", "done");
+    setStepState("host-step-3", "current");
     answerInput.focus();
   };
 
@@ -134,13 +175,14 @@ async function startHostFlow(): Promise<void> {
     if (!pc) return;
     const decoded = decodeCode(answerInput.value);
     if (!decoded) {
-      hint.textContent =
+      manualHint.textContent =
         "That code didn\u2019t look right. Check it and try again.";
       return;
     }
-    hint.textContent = "Connecting…";
+    manualHint.textContent = "Connecting…";
     applyAnswerBlob(pc, decoded).catch((err) => {
-      hint.textContent = "That code didn\u2019t work. Check it and try again.";
+      manualHint.textContent =
+        "That code didn\u2019t work. Check it and try again.";
       console.error(err);
     });
   };
@@ -151,7 +193,7 @@ async function scanForAnswer(): Promise<void> {
   $("scan-title").textContent = "Scan their reply code";
   const video = $("scan-video") as HTMLVideoElement;
   const hint = $("scan-hint");
-  $("scan-fallback").hidden = true;
+  ($("scan-trouble-link") as HTMLAnchorElement).hidden = true;
   hint.textContent = "Looking for a code…";
 
   activeScan = await startScanning(
@@ -177,20 +219,26 @@ async function scanForAnswer(): Promise<void> {
 
 // --- Joiner flow: scan offer -> create answer -> show QR -> wait for connect ---
 
-/** Consume the host's offer (however it arrived — scanned or pasted) and show our reply. */
-async function handleOfferPayload(
-  payload: string,
-  hint: HTMLElement,
-): Promise<void> {
-  hint.textContent = "Generating your reply code…";
+/** Consume the host's offer, whichever way it arrived, and stash our reply. */
+async function processOffer(payload: string): Promise<string> {
   pc = createPeerConnection();
   pc.ondatachannel = (ev) => {
     dc = ev.channel;
     dc.onopen = () => onDataChannelOpen();
   };
+  const answerBlob = await createAnswerBlob(pc, payload);
+  joinAnswerBlob = answerBlob;
+  return answerBlob;
+}
+
+/** Camera-scan success path: process the offer, then show our reply as a QR. */
+async function handleScannedOffer(
+  payload: string,
+  hint: HTMLElement,
+): Promise<void> {
+  hint.textContent = "Generating your reply code…";
   try {
-    const answerBlob = await createAnswerBlob(pc, payload);
-    joinAnswerBlob = answerBlob;
+    const answerBlob = await processOffer(payload);
     showScreen("screen-join-qr");
     await renderQr($("join-qr-canvas"), answerBlob);
   } catch (err) {
@@ -199,35 +247,31 @@ async function handleOfferPayload(
   }
 }
 
+function resetJoinManualSteps(): void {
+  setStepState("join-step-1", "current");
+  setStepState("join-step-2", "pending");
+  $("join-manual-hint").textContent = "";
+  ($("join-offer-input") as HTMLInputElement).value = "";
+}
+
 async function startJoinFlow(): Promise<void> {
   isHost = false;
   showScreen("screen-scan");
   $("scan-title").textContent = "Scan the code on their screen";
   const video = $("scan-video") as HTMLVideoElement;
   const hint = $("scan-hint");
-  const fallback = $("scan-fallback");
-  const codeForm = $("scan-code-form") as HTMLFormElement;
-  const codeInput = $("scan-code-input") as HTMLInputElement;
-  fallback.hidden = false;
-  codeInput.value = "";
-  hint.textContent = "Looking for a code…";
-
-  codeForm.onsubmit = (ev) => {
+  const troubleLink = $("scan-trouble-link") as HTMLAnchorElement;
+  troubleLink.hidden = false;
+  troubleLink.onclick = (ev) => {
     ev.preventDefault();
-    const decoded = decodeCode(codeInput.value);
-    if (!decoded) {
-      hint.textContent =
-        "That code didn\u2019t look right. Check it and try again.";
-      return;
-    }
-    activeScan?.stop();
-    activeScan = null;
-    void handleOfferPayload(decoded, hint);
+    resetJoinManualSteps();
+    showScreen("screen-join-manual");
   };
+  hint.textContent = "Looking for a code…";
 
   activeScan = await startScanning(
     video,
-    (payload) => void handleOfferPayload(payload, hint),
+    (payload) => void handleScannedOffer(payload, hint),
     (err) => {
       hint.textContent = "Camera access is needed to scan the code.";
       console.error(err);
@@ -314,12 +358,48 @@ function handleTap(): void {
 }
 ($("btn-tap-left") as HTMLButtonElement).onclick = () => handleTap();
 ($("btn-tap-right") as HTMLButtonElement).onclick = () => handleTap();
+const joinOfferForm = $("join-offer-form") as HTMLFormElement;
+const joinOfferInput = $("join-offer-input") as HTMLInputElement;
+const joinManualHint = $("join-manual-hint");
+joinOfferForm.onsubmit = (ev) => {
+  ev.preventDefault();
+  const decoded = decodeCode(joinOfferInput.value);
+  if (!decoded) {
+    joinManualHint.textContent =
+      "That code didn\u2019t look right. Check it and try again.";
+    return;
+  }
+  joinManualHint.textContent = "Generating your reply code…";
+  processOffer(decoded)
+    .then(() => {
+      joinManualHint.textContent = "";
+      setStepState("join-step-1", "done");
+      setStepState("join-step-2", "current");
+    })
+    .catch((err) => {
+      console.error(err);
+      joinManualHint.textContent =
+        "That code didn\u2019t look right. Try again.";
+    });
+};
+
 const joinCopyBtn = $("btn-join-copy-code") as HTMLButtonElement;
 joinCopyBtn.onclick = () => {
   if (!joinAnswerBlob) return;
   void copyToClipboard(encodeCode(joinAnswerBlob));
-  flashButtonLabel(joinCopyBtn, "Copied! Now send it to them.", 10000);
+  flashButtonLabel(joinCopyBtn, "Copied!");
 };
+
+document
+  .querySelectorAll<HTMLAnchorElement>("[data-manual-back]")
+  .forEach((link) => {
+    link.onclick = (ev) => {
+      ev.preventDefault();
+      showScreen(
+        link.dataset.manualBack === "host" ? "screen-host-qr" : "screen-scan",
+      );
+    };
+  });
 ($("btn-rematch") as HTMLButtonElement).onclick = () => {
   if (dc && dc.readyState === "open") {
     game?.requestRematch();
