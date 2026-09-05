@@ -238,7 +238,6 @@ async function startHostFlow(): Promise<void> {
     flashButtonLabel(copyBtn, "Copied!");
     setStepState("host-step-1", "done");
     setStepState("host-step-2", "current");
-    answerInput.focus();
   };
 
   answerForm.onsubmit = (ev) => {
