@@ -221,7 +221,6 @@ body {
   display: flex;
   flex-direction: row;
   gap: 14px;
-  background-color: var(--surface);
   background-image: url("../assets/wall.png");
   background-size:
     100% 100%,
