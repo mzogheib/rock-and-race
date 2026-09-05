@@ -173,9 +173,21 @@ body {
 
 .code-entry {
   display: flex;
-  flex-direction: column;
-  gap: 10px;
+  flex-direction: row;
+  align-items: stretch;
+  gap: 8px;
   width: 100%;
+}
+
+.code-entry .text-input {
+  flex: 1;
+  min-width: 0;
+}
+
+.code-entry .btn {
+  flex-shrink: 0;
+  padding-left: 18px;
+  padding-right: 18px;
 }
 
 .text-input {
