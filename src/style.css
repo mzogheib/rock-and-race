@@ -207,9 +207,12 @@ body {
   transition: opacity 150ms ease;
 }
 
-.step.is-current,
-.step.is-done {
+.step.is-current {
   opacity: 1;
+}
+
+.step.is-done {
+  opacity: 0.6;
 }
 
 .step .hint {

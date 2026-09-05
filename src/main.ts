@@ -171,7 +171,13 @@ function setStepState(
       // Some inputs (e.g. the read-only code preview) must stay disabled no
       // matter the step's state — leave those alone.
       if (el.dataset.static !== undefined) return;
-      el.disabled = state === "pending";
+      // Most "done" controls (e.g. "Copy") stay usable in case you need to
+      // repeat them. Ones marked disable-when-done aren't safe to redo once
+      // submitted (re-processing a code would start a fresh connection), so
+      // they lock along with "pending".
+      const disableOnDone =
+        state === "done" && el.dataset.disableWhenDone !== undefined;
+      el.disabled = state === "pending" || disableOnDone;
     });
 }
 
@@ -218,7 +224,9 @@ async function startHostFlow(): Promise<void> {
   hint.textContent = "";
   scanAnswerBtn.hidden = false;
   scanAnswerBtn.onclick = () => scanForAnswer();
-  setStepState("host-qr-step-1", "done");
+  // Step 1 stays "current" rather than "done" — the QR needs to stay fully
+  // visible the whole time, it's not a one-off action like "Copy" is.
+  setStepState("host-qr-step-1", "current");
   setStepState("host-qr-step-2", "current");
   troubleLink.hidden = false;
   troubleLink.onclick = (ev) => {
@@ -320,6 +328,9 @@ async function processOffer(
   };
   const answerBlob = await createAnswerBlob(pc, payload);
   joinAnswerBlob = answerBlob;
+  // Whether this came from the camera or was typed in, show it in the
+  // manual-fallback screen's step 1 too, so it's clear what was used.
+  ($("join-offer-input") as HTMLInputElement).value = encodeCode(payload);
   return answerBlob;
 }
 
