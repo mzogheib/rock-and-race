@@ -119,26 +119,20 @@ function flashButtonLabel(
 }
 
 /**
- * Surface the browser's own WebRTC connection state as plain-language
- * status, for the stretch after codes have been exchanged where the two
- * devices are actually finding each other and connecting.
+ * Surface only a real problem with the browser's own WebRTC connection
+ * state — not the routine "connecting…" progress, just when it's actually
+ * failed or dropped, since that's the one case a player needs telling.
  */
 function watchConnectionState(
   peer: RTCPeerConnection,
   hint: HTMLElement,
 ): void {
   const describe = () => {
-    switch (peer.connectionState) {
-      case "connecting":
-        hint.textContent = "Found them! Connecting…";
-        break;
-      case "connected":
-        hint.textContent = "Connected! Starting the race…";
-        break;
-      case "failed":
-      case "disconnected":
-        hint.textContent = "Lost the connection. Go back and try again.";
-        break;
+    if (
+      peer.connectionState === "failed" ||
+      peer.connectionState === "disconnected"
+    ) {
+      hint.textContent = "Lost the connection. Go back and try again.";
     }
   };
   peer.onconnectionstatechange = describe;
@@ -205,7 +199,6 @@ function continueHostFallback(): void {
 async function startHostFlow(): Promise<void> {
   isHost = true;
   showScreen("screen-host-qr");
-  const hint = $("host-qr-hint");
   const scanAnswerBtn = $("btn-host-scan-answer") as HTMLButtonElement;
   const troubleLink = $("host-trouble-link") as HTMLAnchorElement;
   scanAnswerBtn.hidden = true;
@@ -213,7 +206,6 @@ async function startHostFlow(): Promise<void> {
   resetHostManualSteps();
   setStepState("host-qr-step-1", "current");
   setStepState("host-qr-step-2", "pending");
-  hint.textContent = "Preparing connection…";
 
   pc = createPeerConnection();
   const { dc: channel, blob } = await createOfferBlob(pc);
@@ -221,7 +213,6 @@ async function startHostFlow(): Promise<void> {
   dc.onopen = () => onDataChannelOpen();
 
   await renderQr($("host-qr-canvas"), blob);
-  hint.textContent = "";
   scanAnswerBtn.hidden = false;
   scanAnswerBtn.onclick = () => scanForAnswer();
   // Step 1 stays "current" rather than "done" — the QR needs to stay fully
@@ -259,7 +250,7 @@ async function startHostFlow(): Promise<void> {
         "That code didn\u2019t look right. Check it and try again.";
       return;
     }
-    manualHint.textContent = "Reading their code…";
+    manualHint.textContent = "";
     applyAnswerBlob(pc, decoded)
       .then(() => {
         if (pc) watchConnectionState(pc, manualHint);
@@ -283,13 +274,12 @@ async function scanForAnswer(): Promise<void> {
     ev.preventDefault();
     continueHostFallback();
   };
-  hint.textContent = "Looking for a code…";
+  hint.textContent = "";
 
   activeScan = await startScanning(
     video,
     async (payload) => {
       if (!pc) return;
-      hint.textContent = "Reading their code…";
       try {
         await applyAnswerBlob(pc, payload);
         // Connection completes async via dc.onopen -> onDataChannelOpen
@@ -310,21 +300,11 @@ async function scanForAnswer(): Promise<void> {
 // --- Joiner flow: scan offer -> create answer -> show QR -> wait for connect ---
 
 /** Consume the host's offer, whichever way it arrived, and stash our reply. */
-async function processOffer(
-  payload: string,
-  hint: HTMLElement,
-): Promise<string> {
+async function processOffer(payload: string): Promise<string> {
   pc = createPeerConnection();
   pc.ondatachannel = (ev) => {
     dc = ev.channel;
     dc.onopen = () => onDataChannelOpen();
-  };
-  // ICE gathering (finding our own reachable network paths, via a STUN
-  // server) is the one genuinely slow step here — worth calling out.
-  pc.onicegatheringstatechange = () => {
-    if (pc?.iceGatheringState === "gathering") {
-      hint.textContent = "Finding your connection path…";
-    }
   };
   const answerBlob = await createAnswerBlob(pc, payload);
   joinAnswerBlob = answerBlob;
@@ -339,9 +319,8 @@ async function handleScannedOffer(
   payload: string,
   hint: HTMLElement,
 ): Promise<void> {
-  hint.textContent = "Reading their code…";
   try {
-    const answerBlob = await processOffer(payload, hint);
+    const answerBlob = await processOffer(payload);
     showScreen("screen-join-qr");
     await renderQr($("join-qr-canvas"), answerBlob);
     if (pc) watchConnectionState(pc, $("join-qr-hint"));
@@ -392,7 +371,7 @@ async function startJoinFlow(): Promise<void> {
     resetJoinManualSteps();
     showScreen("screen-join-manual");
   };
-  hint.textContent = "Looking for a code…";
+  hint.textContent = "";
 
   activeScan = await startScanning(
     video,
@@ -531,10 +510,9 @@ joinOfferForm.onsubmit = (ev) => {
       "That code didn\u2019t look right. Check it and try again.";
     return;
   }
-  joinManualHint.textContent = "Reading their code…";
-  processOffer(decoded, joinManualHint)
+  joinManualHint.textContent = "";
+  processOffer(decoded)
     .then((answerBlob) => {
-      joinManualHint.textContent = "Waiting for them to connect…";
       if (pc) watchConnectionState(pc, joinManualHint);
       ($("join-code-preview") as HTMLInputElement).value =
         encodeCode(answerBlob);
