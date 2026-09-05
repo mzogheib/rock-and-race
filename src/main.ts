@@ -32,6 +32,9 @@ let dc: RTCDataChannel | null = null;
 let game: Game | null = null;
 let activeScan: ScanHandle | null = null;
 let joinAnswerBlob: string | null = null;
+// The host is always shown on the left, the joiner always on the right —
+// see the `.track.joiner` rule in style.css.
+let isHost = true;
 
 function resetConnection(): void {
   activeScan?.stop();
@@ -91,6 +94,7 @@ function goHome(): void {
 // --- Host flow: create offer -> show QR -> scan answer -> connect ---
 
 async function startHostFlow(): Promise<void> {
+  isHost = true;
   showScreen("screen-host-qr");
   const hint = $("host-qr-hint");
   const scanAnswerBtn = $("btn-host-scan-answer") as HTMLButtonElement;
@@ -190,6 +194,7 @@ async function handleOfferPayload(
 }
 
 async function startJoinFlow(): Promise<void> {
+  isHost = false;
   showScreen("screen-scan");
   $("scan-title").textContent = "Scan the code on their screen";
   const video = $("scan-video") as HTMLVideoElement;
@@ -232,6 +237,7 @@ function onDataChannelOpen(): void {
 
 function startGame(): void {
   if (!dc) return;
+  $("track").classList.toggle("joiner", !isHost);
   game = new Game(dc, {
     onProgress: (me, opp) => updateTrack(me, opp),
     onWin: (winner) => showResult(winner),
