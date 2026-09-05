@@ -292,7 +292,7 @@ body {
   width: var(--tap-size);
   aspect-ratio: 1;
   border: none;
-  background: var(--p1);
+  background: #cd9054;
   color: #1a0505;
   font-size: 17px;
   font-weight: 800;
