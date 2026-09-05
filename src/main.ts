@@ -259,11 +259,28 @@ function startGame(): void {
 const LANE_START_LEFT = 22; // % from the left edge
 const LANE_START_RIGHT = 78;
 const LANE_CONVERGE = 50; // meets under the trophy
+const ZIGZAG_AMPLITUDE = 7; // percentage points, at its widest mid-climb
+const ZIGZAG_CYCLES = 2; // full wiggles along the climb
+
+// A wiggle around the straight path to the trophy. The envelope fades it to
+// exactly 0 at progress 0 and 1, so the start point and the convergence at
+// the top are never thrown off by it.
+function zigzagOffset(progress: number): number {
+  const envelope = Math.sin(progress * Math.PI);
+  return (
+    ZIGZAG_AMPLITUDE *
+    envelope *
+    Math.sin(progress * ZIGZAG_CYCLES * Math.PI * 2)
+  );
+}
 
 function positionAvatar(el: HTMLElement, progress: number, startX: number) {
   const track = el.parentElement as HTMLElement;
   const trackHeight = track.clientHeight - 28;
-  el.style.left = `${startX + (LANE_CONVERGE - startX) * progress}%`;
+  const towardCenter = Math.sign(LANE_CONVERGE - startX) || 1;
+  const baseX = startX + (LANE_CONVERGE - startX) * progress;
+  const x = baseX + towardCenter * zigzagOffset(progress);
+  el.style.left = `${x}%`;
   el.style.bottom = `${4 + progress * trackHeight}px`;
 }
 
