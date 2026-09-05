@@ -127,10 +127,15 @@ async function startJoinFlow(): Promise<void> {
 // --- Shared: once the data channel is open on either side, start the race ---
 
 function onDataChannelOpen(): void {
+  startGame();
+}
+
+function startGame(): void {
   if (!dc) return;
   game = new Game(dc, {
     onProgress: (me, opp) => updateTrack(me, opp),
     onWin: (winner) => showResult(winner),
+    onRematchRequested: () => startGame(),
   });
   showScreen("screen-race");
   updateTrack(0, 0);
@@ -158,13 +163,8 @@ function showResult(winner: "me" | "opp"): void {
 ($("btn-tap") as HTMLButtonElement).onclick = () => game?.tap();
 ($("btn-rematch") as HTMLButtonElement).onclick = () => {
   if (dc && dc.readyState === "open") {
-    game = new Game(dc, {
-      onProgress: (me, opp) => updateTrack(me, opp),
-      onWin: (winner) => showResult(winner),
-    });
-    showScreen("screen-race");
-    updateTrack(0, 0);
-    game.start();
+    game?.requestRematch();
+    startGame();
   } else {
     goHome();
   }

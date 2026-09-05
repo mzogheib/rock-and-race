@@ -2,10 +2,13 @@ const TAPS_TO_WIN = 40; // tune to taste
 const BROADCAST_INTERVAL_MS = 80;
 
 type ProgressMsg = { type: "progress"; value: number };
+type RematchMsg = { type: "rematch" };
+type Msg = ProgressMsg | RematchMsg;
 
 export type GameCallbacks = {
   onProgress: (me: number, opp: number) => void;
   onWin: (winner: "me" | "opp") => void;
+  onRematchRequested: () => void;
 };
 
 export class Game {
@@ -60,11 +63,21 @@ export class Game {
     this.dc.send(JSON.stringify(msg));
   }
 
+  requestRematch(): void {
+    if (this.dc.readyState !== "open") return;
+    const msg: RematchMsg = { type: "rematch" };
+    this.dc.send(JSON.stringify(msg));
+  }
+
   private handleMessage(raw: string): void {
-    let msg: ProgressMsg;
+    let msg: Msg;
     try {
       msg = JSON.parse(raw);
     } catch {
+      return;
+    }
+    if (msg.type === "rematch") {
+      this.callbacks.onRematchRequested();
       return;
     }
     if (msg.type !== "progress") return;
